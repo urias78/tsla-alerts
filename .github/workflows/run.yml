@@ -1,7 +1,7 @@
 name: TSLA Decision Engine
 
 on:
-  workflow_dispatch:  # הפעלה ידנית מה-Shortcut
+  workflow_dispatch:
 
 jobs:
   run:
@@ -24,10 +24,13 @@ jobs:
       - name: Run TSLA script
         run: python tsla_alert_v2.py
 
-      - name: Deploy HTML to GitHub Pages
+      - name: Prepare deploy folder
+        run: |
+          mkdir -p deploy
+          cp tsla_decision_engine.html deploy/index.html
+
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          include_files: tsla_decision_engine.html
-          keep_files: true
+          publish_dir: ./deploy
