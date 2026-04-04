@@ -143,7 +143,7 @@ window.onload = render;
   <div>
     <div style="font-size:10px;color:#aaa;letter-spacing:.2em;font-family:monospace;margin-bottom:6px">TSLA · NASDAQ</div>
     <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em">Trade Decision Engine</div>
-    <div style="font-size:11px;color:#aaa;margin-top:4px">&#128344; 04/04/2026 22:31 (IL)</div>
+    <div style="font-size:11px;color:#aaa;margin-top:4px">&#128344; 04/04/2026 22:45 (IL)</div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
     <div style="background:#0d2818;border:1px solid #00cc5544;border-radius:10px;padding:8px 14px;text-align:center">
@@ -156,14 +156,20 @@ window.onload = render;
 
 <div style="padding:16px 16px 0">
 
-  <!-- EARNINGS TOGGLE -->
-  <button id="earnings-btn" onclick="toggleEarnings()"
-    style="width:100%;padding:12px;border-radius:12px;border:2px solid;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:14px;transition:all .2s">
-  </button>
+  <!-- EARNINGS TOGGLE + TIMESTAMP -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <button id="earnings-btn" onclick="toggleEarnings()"
+      style="flex:1;padding:12px;border-radius:12px;border:2px solid;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
+    </button>
+    <div style="background:#f0f4ff;border:1px solid #c7d7fe;border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;min-width:80px">
+      <div style="font-size:9px;color:#6366f1;letter-spacing:.1em;margin-bottom:2px;font-weight:700">עודכן</div>
+      <div style="font-size:14px;font-weight:800;color:#4338ca;font-family:monospace">04/04/2026 22:45 (IL)</div>
+    </div>
+  </div>
 
   <!-- MARKET DATA -->
   <div class="card">
-    <div style="font-size:11px;color:#888;margin-bottom:12px;font-weight:600;letter-spacing:.1em">&#128202; נתוני שוק &mdash; 04/04/2026 22:31 (IL)</div>
+    <div style="font-size:11px;color:#888;margin-bottom:12px;font-weight:600;letter-spacing:.1em">&#128202; נתוני שוק</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
       <div class="metric" style="background:#eff6ff;border-color:#bfdbfe">
         <div class="metric-label">מחיר נוכחי</div>
@@ -196,10 +202,10 @@ window.onload = render;
       <div class="score-bar-bg"><div id="sell-bar" class="score-bar-fill" style="width:0%"></div></div>
     </div>
     <div id="sell-conds" style="padding:4px 18px 0"></div>
-    <div style="padding:14px 18px;border-top:1px solid #f0f0f0;background:#fafafa">
+    <div style="padding:14px 18px;border-top:1px solid #e0e0e0;background:#fff">
       <div style="font-size:11px;font-weight:700;color:#888;margin-bottom:10px">&#128203; פקודות Limit מוצעות</div>
-      <div class="order-row" style="border:1px solid #fca5a5"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Sell — 212 מניות (50%)</div><div style="font-size:11px;color:#888">+4% מהפתיחה | רווח משוער: $3087</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#dc2626">$378.59</div></div>
-      <div class="order-row" style="border:1px solid #fca5a5"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Sell — 106 מניות (25%)</div><div style="font-size:11px;color:#888">+6% מהפתיחה | רווח משוער: $2315</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#ef4444">$385.87</div></div>
+      <div class="order-row" style="background:#fff;border:1px solid #fca5a5"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Sell — 212 מניות (50%)</div><div style="font-size:11px;color:#888">+4% מהפתיחה | רווח משוער: $3087</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#dc2626">$378.59</div></div>
+      <div class="order-row" style="background:#fff;border:1px solid #fca5a5"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Sell — 106 מניות (25%)</div><div style="font-size:11px;color:#888">+6% מהפתיחה | רווח משוער: $2315</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#ef4444">$385.87</div></div>
     </div>
   </div>
 
@@ -216,11 +222,11 @@ window.onload = render;
       <div class="score-bar-bg"><div id="rebuy-bar" class="score-bar-fill" style="width:0%"></div></div>
     </div>
     <div id="rebuy-conds" style="padding:4px 18px 0"></div>
-    <div style="padding:14px 18px;border-top:1px solid #f0f0f0;background:#fafafa">
+    <div style="padding:14px 18px;border-top:1px solid #e0e0e0;background:#fff">
       <div style="font-size:11px;font-weight:700;color:#888;margin-bottom:10px">&#128203; פקודות Limit מוצעות</div>
-      <div class="order-row" style="border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy אגרסיבי (תוך-יומי)</div><div style="font-size:11px;color:#888">2% מתחת למחיר | +4 מניות בונוס</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#16a34a">$353.34</div></div>
-      <div class="order-row" style="border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy מאוזן (תוך-יומי)</div><div style="font-size:11px;color:#888">1.5% מתחת | איזון בין מחיר למילוי</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#22c55e">$355.14</div></div>
-      <div class="order-row" style="border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy שמרני (יום המחרת)</div><div style="font-size:11px;color:#888">3% מתחת | סיכוי מילוי נמוך אך מחיר טוב</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#4ade80">$349.73</div></div>
+      <div class="order-row" style="background:#fff;border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy אגרסיבי (תוך-יומי)</div><div style="font-size:11px;color:#888">2% מתחת למחיר | +4 מניות בונוס</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#16a34a">$353.34</div></div>
+      <div class="order-row" style="background:#fff;border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy מאוזן (תוך-יומי)</div><div style="font-size:11px;color:#888">1.5% מתחת | איזון בין מחיר למילוי</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#22c55e">$355.14</div></div>
+      <div class="order-row" style="background:#fff;border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy שמרני (יום המחרת)</div><div style="font-size:11px;color:#888">3% מתחת | סיכוי מילוי נמוך אך מחיר טוב</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#4ade80">$349.73</div></div>
     </div>
   </div>
 
