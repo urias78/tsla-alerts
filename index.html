@@ -6,15 +6,16 @@
 <title>TSLA Decision Engine</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#07070f;font-family:system-ui,-apple-system,sans-serif;color:#e0e0e0;padding-bottom:40px}
-.card{background:#0d0d1a;border:1px solid #1a1a2e;border-radius:12px;padding:16px;margin-bottom:14px}
-.section-card{background:#0d0d1a;border-radius:14px;overflow:hidden;margin-bottom:14px}
-.metric{flex:1 1 70px;min-width:70px;background:#0d0d1a;border:1px solid #1a1a2e;border-radius:10px;padding:10px 8px;text-align:center}
-.metric-label{font-size:10px;color:#555;margin-bottom:4px;letter-spacing:.05em}
-.metric-value{font-size:15px;font-weight:800;font-family:monospace;color:#e0e0e0}
-.cond-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1a1a2e}
+body{background:#f0f2f5;font-family:system-ui,-apple-system,sans-serif;color:#111;padding-bottom:40px}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px;margin-bottom:14px}
+.section-card{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:14px;border:2px solid #e0e0e0}
+.metric{flex:1 1 70px;min-width:70px;background:#f8f9fa;border:1px solid #e0e0e0;border-radius:10px;padding:10px 8px;text-align:center}
+.metric-label{font-size:10px;color:#888;margin-bottom:4px;letter-spacing:.05em}
+.metric-value{font-size:15px;font-weight:800;font-family:monospace;color:#111}
+.cond-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.section-title{font-size:18px;font-weight:800;color:#111;padding:14px 18px 2px}
 .order-row{background:#0d0d1a;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.score-bar-bg{background:#1a1a2e;border-radius:4px;height:8px;width:100%;overflow:hidden}
+.score-bar-bg{background:#e5e7eb;border-radius:4px;height:8px;width:100%;overflow:hidden}
 .score-bar-fill{height:100%;border-radius:4px;transition:width .8s ease}
 </style>
 </head>
@@ -62,19 +63,19 @@ function condRow(label, value, ok, detail){
   return `<div class="cond-row">
     ${condDot(ok)}
     <div style="flex:1">
-      <div style="font-size:13px;font-weight:600;color:#e0e0e0">${label}</div>
-      <div style="font-size:11px;color:#555;margin-top:1px">${detail}</div>
+      <div style="font-size:13px;font-weight:600;color:#111">${label}</div>
+      <div style="font-size:11px;color:#888;margin-top:1px">${detail}</div>
     </div>
     <div style="font-size:13px;font-weight:700;font-family:monospace;
-      color:${ok?"#00ff88":"#ff4444"};min-width:60px;text-align:left">${value}</div>
+      color:${ok?"#16a34a":"#dc2626"};min-width:60px;text-align:left">${value}</div>
   </div>`;
 }
 
 function orderRow(label, price, note, color){
   return `<div class="order-row" style="border:1px solid ${color}44">
     <div>
-      <div style="font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px">${label}</div>
-      <div style="font-size:11px;color:#555">${note}</div>
+      <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">${label}</div>
+      <div style="font-size:11px;color:#888">${note}</div>
     </div>
     <div style="font-size:18px;font-weight:800;font-family:monospace;color:${color}">${price}</div>
   </div>`;
@@ -90,14 +91,14 @@ function render(){
   const volHe = d.vol_label==="low"?"נמוך":d.vol_label==="high"?"גבוה":"רגיל";
 
   // Earnings toggle button
-  document.getElementById("earnings-btn").style.background    = earningsWeek ? "#7a2000" : "#0d2818";
-  document.getElementById("earnings-btn").style.borderColor   = earningsWeek ? "#ff6600" : "#00ff8844";
-  document.getElementById("earnings-btn").style.color         = earningsWeek ? "#ff9955" : "#00cc66";
+  document.getElementById("earnings-btn").style.background    = earningsWeek ? "#fff7ed" : "#f0fdf4";
+  document.getElementById("earnings-btn").style.borderColor   = earningsWeek ? "#f97316" : "#16a34a";
+  document.getElementById("earnings-btn").style.color         = earningsWeek ? "#ea580c" : "#15803d";
   document.getElementById("earnings-btn").textContent         = earningsWeek ? "⚠️ שבוע דוחות — פעיל" : "📅 שבוע דוחות — כבוי";
 
   // SELL section
   document.getElementById("sell-wrap").style.borderColor = sell.color+"44";
-  document.getElementById("sell-header").style.background = `linear-gradient(135deg,${sell.color}11,transparent)`;
+  document.getElementById("sell-header").style.background = `linear-gradient(135deg,${sell.color}11,#fff)`;
   document.getElementById("sell-action").style.color = sell.color;
   document.getElementById("sell-action").textContent = sell.emoji+" "+sell.text;
   document.getElementById("sell-sub").textContent = sell.sub;
@@ -114,7 +115,7 @@ function render(){
 
   // REBUY section
   document.getElementById("rebuy-wrap").style.borderColor = rebuy.color+"44";
-  document.getElementById("rebuy-header").style.background = `linear-gradient(135deg,${rebuy.color}11,transparent)`;
+  document.getElementById("rebuy-header").style.background = `linear-gradient(135deg,${rebuy.color}11,#fff)`;
   document.getElementById("rebuy-action").style.color = rebuy.color;
   document.getElementById("rebuy-action").textContent = rebuy.emoji+" "+rebuy.text;
   document.getElementById("rebuy-sub").textContent = rebuy.sub;
@@ -138,16 +139,16 @@ window.onload = render;
 </script>
 
 <!-- HEADER -->
-<div style="background:linear-gradient(135deg,#0d0d1a,#12122a);border-bottom:1px solid #1a1a2e;padding:20px 20px 16px;display:flex;justify-content:space-between;align-items:flex-start">
+<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-bottom:3px solid #e0e0e0;padding:20px 20px 16px;display:flex;justify-content:space-between;align-items:flex-start">
   <div>
-    <div style="font-size:10px;color:#444;letter-spacing:.2em;font-family:monospace;margin-bottom:6px">TSLA · NASDAQ</div>
+    <div style="font-size:10px;color:#aaa;letter-spacing:.2em;font-family:monospace;margin-bottom:6px">TSLA · NASDAQ</div>
     <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em">Trade Decision Engine</div>
-    <div style="font-size:11px;color:#444;margin-top:4px">&#128344; 04/04/2026 22:08 (IL)</div>
+    <div style="font-size:11px;color:#aaa;margin-top:4px">&#128344; 04/04/2026 22:31 (IL)</div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-    <div style="background:#0d2818;border:1px solid #00ff8844;border-radius:10px;padding:8px 14px;text-align:center">
+    <div style="background:#0d2818;border:1px solid #00cc5544;border-radius:10px;padding:8px 14px;text-align:center">
       <div style="font-size:9px;color:#00aa55;letter-spacing:.15em;margin-bottom:2px">HOLDING</div>
-      <div style="font-size:22px;font-weight:800;color:#00ff88;font-family:monospace">460</div>
+      <div style="font-size:22px;font-weight:800;color:#00cc66;font-family:monospace">460</div>
       <div style="font-size:9px;color:#00aa55">מניות</div>
     </div>
   </div>
@@ -162,62 +163,64 @@ window.onload = render;
 
   <!-- MARKET DATA -->
   <div class="card">
-    <div style="font-size:11px;color:#444;margin-bottom:12px;font-weight:600;letter-spacing:.1em">&#128202; נתוני שוק &mdash; 04/04/2026 22:08 (IL)</div>
+    <div style="font-size:11px;color:#888;margin-bottom:12px;font-weight:600;letter-spacing:.1em">&#128202; נתוני שוק &mdash; 04/04/2026 22:31 (IL)</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <div class="metric" style="background:#7070ff11;border-color:#7070ff44">
+      <div class="metric" style="background:#eff6ff;border-color:#bfdbfe">
         <div class="metric-label">מחיר נוכחי</div>
-        <div class="metric-value" style="color:#7070ff">$360.55</div>
+        <div class="metric-value" style="color:#1d4ed8">$360.55</div>
       </div>
       <div class="metric"><div class="metric-label">פתיחה</div><div class="metric-value">$364.03</div></div>
-      <div class="metric" style="background:;border-color:#1a1a2e">
+      <div class="metric" style="background:#f8f9fa;border-color:#e0e0e0">
         <div class="metric-label">מהפתיחה</div>
-        <div class="metric-value" style="color:#e0e0e0">-0.96%</div>
+        <div class="metric-value" style="color:#111">-0.96%</div>
       </div>
       <div class="metric"><div class="metric-label">VWAP</div><div class="metric-value">$364.18</div></div>
-      <div class="metric" style="background:;border-color:#1a1a2e">
+      <div class="metric" style="background:#f8f9fa;border-color:#e0e0e0">
         <div class="metric-label">RSI</div>
-        <div class="metric-value" style="color:#e0e0e0">47.8</div>
+        <div class="metric-value" style="color:#111">47.8</div>
       </div>
       <div class="metric"><div class="metric-label">נפח</div><div class="metric-value">גבוה</div></div>
     </div>
   </div>
 
   <!-- SELL SECTION -->
-  <div id="sell-wrap" class="section-card" style="border:2px solid #44444400">
-    <div id="sell-header" style="padding:18px 18px 14px;border-bottom:1px solid #1a1a2e">
+  <div class="section-title">🔴 מכירה</div>
+  <div id="sell-wrap" class="section-card">
+    <div id="sell-header" style="padding:18px 18px 14px;border-bottom:1px solid #f0f0f0">
       <div id="sell-action" style="font-size:22px;font-weight:800;margin-bottom:4px"></div>
-      <div id="sell-sub" style="font-size:13px;color:#888;margin-bottom:12px"></div>
+      <div id="sell-sub" style="font-size:13px;color:#666;margin-bottom:12px"></div>
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:11px;color:#555">ציון ביטחון</span>
+        <span style="font-size:11px;color:#888">ציון ביטחון</span>
         <span id="sell-score-val" style="font-size:13px;font-weight:800;font-family:monospace"></span>
       </div>
       <div class="score-bar-bg"><div id="sell-bar" class="score-bar-fill" style="width:0%"></div></div>
     </div>
     <div id="sell-conds" style="padding:4px 18px 0"></div>
-    <div style="padding:14px 18px;border-top:1px solid #1a1a2e">
-      <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:10px">&#128203; פקודות Limit מוצעות</div>
-      <div class="order-row" style="border:1px solid #ff444444"><div><div style="font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px">Limit Sell &mdash; 212 מניות (50%)</div><div style="font-size:11px;color:#555">+4% מהפתיחה | רווח משוער: $3087</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#ff4444">$378.59</div></div>
-      <div class="order-row" style="border:1px solid #ff666644"><div><div style="font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px">Limit Sell &mdash; 106 מניות (25%)</div><div style="font-size:11px;color:#555">+6% מהפתיחה | רווח משוער: $2315</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#ff6666">$385.87</div></div>
+    <div style="padding:14px 18px;border-top:1px solid #f0f0f0;background:#fafafa">
+      <div style="font-size:11px;font-weight:700;color:#888;margin-bottom:10px">&#128203; פקודות Limit מוצעות</div>
+      <div class="order-row" style="border:1px solid #fca5a5"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Sell — 212 מניות (50%)</div><div style="font-size:11px;color:#888">+4% מהפתיחה | רווח משוער: $3087</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#dc2626">$378.59</div></div>
+      <div class="order-row" style="border:1px solid #fca5a5"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Sell — 106 מניות (25%)</div><div style="font-size:11px;color:#888">+6% מהפתיחה | רווח משוער: $2315</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#ef4444">$385.87</div></div>
     </div>
   </div>
 
   <!-- REBUY SECTION -->
-  <div id="rebuy-wrap" class="section-card" style="border:2px solid #44444400">
-    <div id="rebuy-header" style="padding:18px 18px 14px;border-bottom:1px solid #1a1a2e">
+  <div class="section-title">🟢 קנייה חוזרת</div>
+  <div id="rebuy-wrap" class="section-card">
+    <div id="rebuy-header" style="padding:18px 18px 14px;border-bottom:1px solid #f0f0f0">
       <div id="rebuy-action" style="font-size:22px;font-weight:800;margin-bottom:4px"></div>
-      <div id="rebuy-sub" style="font-size:13px;color:#888;margin-bottom:12px"></div>
+      <div id="rebuy-sub" style="font-size:13px;color:#666;margin-bottom:12px"></div>
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:11px;color:#555">ציון ביטחון</span>
+        <span style="font-size:11px;color:#888">ציון ביטחון</span>
         <span id="rebuy-score-val" style="font-size:13px;font-weight:800;font-family:monospace"></span>
       </div>
       <div class="score-bar-bg"><div id="rebuy-bar" class="score-bar-fill" style="width:0%"></div></div>
     </div>
     <div id="rebuy-conds" style="padding:4px 18px 0"></div>
-    <div style="padding:14px 18px;border-top:1px solid #1a1a2e">
-      <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:10px">&#128203; פקודות Limit מוצעות</div>
-      <div class="order-row" style="border:1px solid #00ff8844"><div><div style="font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px">Limit Buy אגרסיבי (תוך-יומי)</div><div style="font-size:11px;color:#555">2% מתחת למחיר | +4 מניות בונוס</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#00ff88">$353.34</div></div>
-      <div class="order-row" style="border:1px solid #00cc6644"><div><div style="font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px">Limit Buy מאוזן (תוך-יומי)</div><div style="font-size:11px;color:#555">1.5% מתחת | איזון בין מחיר למילוי</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#00cc66">$355.14</div></div>
-      <div class="order-row" style="border:1px solid #00994444"><div><div style="font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px">Limit Buy שמרני (יום המחרת)</div><div style="font-size:11px;color:#555">3% מתחת | סיכוי מילוי נמוך אך מחיר טוב</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#009944">$349.73</div></div>
+    <div style="padding:14px 18px;border-top:1px solid #f0f0f0;background:#fafafa">
+      <div style="font-size:11px;font-weight:700;color:#888;margin-bottom:10px">&#128203; פקודות Limit מוצעות</div>
+      <div class="order-row" style="border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy אגרסיבי (תוך-יומי)</div><div style="font-size:11px;color:#888">2% מתחת למחיר | +4 מניות בונוס</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#16a34a">$353.34</div></div>
+      <div class="order-row" style="border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy מאוזן (תוך-יומי)</div><div style="font-size:11px;color:#888">1.5% מתחת | איזון בין מחיר למילוי</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#22c55e">$355.14</div></div>
+      <div class="order-row" style="border:1px solid #86efac"><div><div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">Limit Buy שמרני (יום המחרת)</div><div style="font-size:11px;color:#888">3% מתחת | סיכוי מילוי נמוך אך מחיר טוב</div></div><div style="font-size:18px;font-weight:800;font-family:monospace;color:#4ade80">$349.73</div></div>
     </div>
   </div>
 
