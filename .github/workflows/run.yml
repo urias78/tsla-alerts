@@ -1,0 +1,33 @@
+name: TSLA Decision Engine
+
+on:
+  workflow_dispatch:  # הפעלה ידנית מה-Shortcut
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install yfinance pandas pytz
+
+      - name: Run TSLA script
+        run: python tsla_alert_v2.py
+
+      - name: Deploy HTML to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          include_files: tsla_decision_engine.html
+          keep_files: true
