@@ -25,7 +25,7 @@ jobs:
         run: pip install yfinance pandas pytz
 
       - name: Run TSLA script
-        run: python tsla_alert_v2.py
+        run: python tsla_alert_v3.py
 
       - name: Prepare deploy folder
         run: |
