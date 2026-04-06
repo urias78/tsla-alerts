@@ -133,12 +133,13 @@ def generate_html(s: dict, generated_at: str) -> str:
     high     = s["daily_high"]
     vwap     = s["vwap"]
     rsi      = s["rsi"]
-    vol      = s["vol_label"]
-    pct      = s["pct_from_open"]
-    pct_h    = s["pct_from_high"]
-    vwap_gap = s["vwap_gap_pct"]
-    sc       = s["sell_conds"]
-    rc       = s["rebuy_conds"]
+    vol          = s["vol_label"]
+    pct          = s["pct_from_open"]
+    pct_h        = s["pct_from_high"]
+    vwap_gap     = s["vwap_gap_pct"]
+    avg_wick_pct = s["avg_wick_pct"]
+    sc           = s["sell_conds"]
+    rc           = s["rebuy_conds"]
 
     vol_he = "נמוך" if vol == "low" else "גבוה" if vol == "high" else "רגיל"
 
