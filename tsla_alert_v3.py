@@ -1,179 +1,179 @@
 #!/usr/bin/env python3
-“””
+"""
 TSLA Alert v3 — HTML generator
 Updated strategy based on quantitative research document:
-
 - Scale-out selling: 25-33% at +3%, 50%+ at +4-5%, 75% at +5-7%, ~all at +7%+
 - Rebuy based on distance from DAILY HIGH (not current price)
 - earnings_week toggled in HTML
-  “””
+"""
 
-from **future** import annotations
+from __future__ import annotations
 import json, sys, traceback
 from datetime import datetime
 from pathlib import Path
 
 import pytz, yfinance as yf, pandas as pd
 
-SCRIPT_DIR  = Path(**file**).parent
-CONFIG_FILE = SCRIPT_DIR / “config.json”
-OUTPUT_FILE = SCRIPT_DIR / “tsla_decision_engine.html”
+SCRIPT_DIR  = Path(__file__).parent
+CONFIG_FILE = SCRIPT_DIR / "config.json"
+OUTPUT_FILE = SCRIPT_DIR / "tsla_decision_engine.html"
 
-TICKER       = “TSLA”
-ET           = pytz.timezone(“America/New_York”)
+TICKER       = "TSLA"
+ET           = pytz.timezone("America/New_York")
 RSI_PERIOD   = 14
 VOL_LOOKBACK = 20
 SHARES_HELD  = 460
 
+
 def load_config() -> dict:
-if CONFIG_FILE.exists():
-with open(CONFIG_FILE) as f:
-cfg = json.load(f)
-else:
-cfg = {}
-cfg[“earnings_week”] = False
-return cfg
+    if CONFIG_FILE.exists():
+        with open(CONFIG_FILE) as f:
+            cfg = json.load(f)
+    else:
+        cfg = {}
+    cfg["earnings_week"] = False
+    return cfg
+
 
 def fetch_intraday() -> pd.DataFrame:
-ticker = yf.Ticker(TICKER)
-df = ticker.history(period=“1d”, interval=“5m”, auto_adjust=True)
-if df.empty:
-raise ValueError(“No intraday data returned from yfinance.”)
-if df.index.tzinfo is None:
-df.index = df.index.tz_localize(“UTC”).tz_convert(ET)
-else:
-df.index = df.index.tz_convert(ET)
-return df
+    ticker = yf.Ticker(TICKER)
+    df = ticker.history(period="1d", interval="5m", auto_adjust=True)
+    if df.empty:
+        raise ValueError("No intraday data returned from yfinance.")
+    if df.index.tzinfo is None:
+        df.index = df.index.tz_localize("UTC").tz_convert(ET)
+    else:
+        df.index = df.index.tz_convert(ET)
+    return df
+
 
 def calc_rsi(closes: pd.Series, period: int = RSI_PERIOD) -> float:
-closes = closes.dropna()
-if len(closes) < period + 1:
-print(f”  [RSI] Not enough bars: {len(closes)} < {period + 1}”)
-return float(“nan”)
-print(f”  [RSI] Computing on {len(closes)} bars”)
-delta    = closes.diff()
-gain     = delta.clip(lower=0)
-loss     = (-delta).clip(lower=0)
-avg_gain = gain.iloc[1:period+1].mean()
-avg_loss = loss.iloc[1:period+1].mean()
-for i in range(period + 1, len(closes)):
-avg_gain = (avg_gain * (period - 1) + gain.iloc[i]) / period
-avg_loss = (avg_loss * (period - 1) + loss.iloc[i]) / period
-if avg_loss == 0:
-return 100.0
-return 100 - (100 / (1 + avg_gain / avg_loss))
+    closes = closes.dropna()
+    if len(closes) < period + 1:
+        print(f"  [RSI] Not enough bars: {len(closes)} < {period + 1}")
+        return float("nan")
+    print(f"  [RSI] Computing on {len(closes)} bars")
+    delta    = closes.diff()
+    gain     = delta.clip(lower=0)
+    loss     = (-delta).clip(lower=0)
+    avg_gain = gain.iloc[1:period+1].mean()
+    avg_loss = loss.iloc[1:period+1].mean()
+    for i in range(period + 1, len(closes)):
+        avg_gain = (avg_gain * (period - 1) + gain.iloc[i]) / period
+        avg_loss = (avg_loss * (period - 1) + loss.iloc[i]) / period
+    if avg_loss == 0:
+        return 100.0
+    return 100 - (100 / (1 + avg_gain / avg_loss))
+
 
 def calc_vwap(df: pd.DataFrame) -> float:
-typical = (df[“High”] + df[“Low”] + df[“Close”]) / 3
-return float((typical * df[“Volume”]).cumsum().iloc[-1] / df[“Volume”].cumsum().iloc[-1])
+    typical = (df["High"] + df["Low"] + df["Close"]) / 3
+    return float((typical * df["Volume"]).cumsum().iloc[-1] / df["Volume"].cumsum().iloc[-1])
+
 
 def evaluate_signals(df: pd.DataFrame, cfg: dict) -> dict:
-current_price = float(df.iloc[-1][“Close”])
-open_price    = float(df.iloc[0][“Open”])
-daily_high    = float(df[“High”].max())
-rsi           = calc_rsi(df[“Close”])
-vwap          = calc_vwap(df)
-vwap_gap_pct  = (current_price - vwap) / vwap * 100
-pct_from_open = (current_price - open_price) / open_price * 100
-pct_from_high = (current_price - daily_high) / daily_high * 100
+    current_price = float(df.iloc[-1]["Close"])
+    open_price    = float(df.iloc[0]["Open"])
+    daily_high    = float(df["High"].max())
+    rsi           = calc_rsi(df["Close"])
+    vwap          = calc_vwap(df)
+    vwap_gap_pct  = (current_price - vwap) / vwap * 100
+    pct_from_open = (current_price - open_price) / open_price * 100
+    pct_from_high = (current_price - daily_high) / daily_high * 100
 
-```
-recent_vols = df["Volume"].iloc[-VOL_LOOKBACK-1:-1]
-avg_vol     = float(recent_vols.mean()) if len(recent_vols) >= 5 else float(df.iloc[-1]["Volume"])
-vol_ratio   = float(df.iloc[-1]["Volume"]) / avg_vol if avg_vol > 0 else 1.0
-vol_label   = "low" if vol_ratio < 0.5 else ("high" if vol_ratio > 1.5 else "normal")
+    recent_vols = df["Volume"].iloc[-VOL_LOOKBACK-1:-1]
+    avg_vol     = float(recent_vols.mean()) if len(recent_vols) >= 5 else float(df.iloc[-1]["Volume"])
+    vol_ratio   = float(df.iloc[-1]["Volume"]) / avg_vol if avg_vol > 0 else 1.0
+    vol_label   = "low" if vol_ratio < 0.5 else ("high" if vol_ratio > 1.5 else "normal")
 
-# Upper wick analysis — last 3 candles
-last3 = df.iloc[-3:]
-wicks = ((last3["High"] - last3[["Open","Close"]].max(axis=1)) / last3["Close"] * 100)
-avg_wick_pct = float(wicks.mean())
-sc6 = avg_wick_pct >= 0.5  # avg upper wick >= 0.5% = selling pressure
+    # Upper wick analysis — last 3 candles
+    last3 = df.iloc[-3:]
+    wicks = ((last3["High"] - last3[["Open","Close"]].max(axis=1)) / last3["Close"] * 100)
+    avg_wick_pct = float(wicks.mean())
+    sc6 = avg_wick_pct >= 0.5  # avg upper wick >= 0.5% = selling pressure
 
-# Sell conditions
-sc1 = pct_from_open >= 3.0
-sc2 = (not pd.isna(rsi)) and rsi > 65
-sc3 = vwap_gap_pct >= 2.0
-sc4 = vol_ratio >= 0.5
-sc5 = True  # earnings_week handled in HTML
-sell_score = int(sum([sc1, sc2, sc3, sc4, sc5, sc6]) / 6 * 100)
+    # Sell conditions
+    sc1 = pct_from_open >= 3.0
+    sc2 = (not pd.isna(rsi)) and rsi > 65
+    sc3 = vwap_gap_pct >= 2.0
+    sc4 = vol_ratio >= 0.5
+    sc5 = True  # earnings_week handled in HTML
+    sell_score = int(sum([sc1, sc2, sc3, sc4, sc5, sc6]) / 6 * 100)
 
-# Rebuy conditions — based on distance from daily high
-rc1 = (not pd.isna(rsi)) and rsi < 55
-rc2 = abs(vwap_gap_pct) <= 0.5
-rc3 = vol_ratio < 1.5
-rc4 = current_price > open_price
-rebuy_score = int(sum([rc1, rc2, rc3, rc4]) / 4 * 100)
+    # Rebuy conditions — based on distance from daily high
+    rc1 = (not pd.isna(rsi)) and rsi < 55
+    rc2 = abs(vwap_gap_pct) <= 0.5
+    rc3 = vol_ratio < 1.5
+    rc4 = current_price > open_price
+    rebuy_score = int(sum([rc1, rc2, rc3, rc4]) / 4 * 100)
 
-return {
-    "current_price": round(current_price, 2),
-    "open_price":    round(open_price, 2),
-    "daily_high":    round(daily_high, 2),
-    "pct_from_open": round(pct_from_open, 2),
-    "pct_from_high": round(pct_from_high, 2),
-    "rsi":           round(rsi, 1) if not pd.isna(rsi) else None,
-    "vwap":          round(vwap, 2),
-    "vwap_gap_pct":  round(vwap_gap_pct, 2),
-    "vol_ratio":     round(vol_ratio, 2),
-    "vol_label":     vol_label,
-    "sell_score":    sell_score,
-    "rebuy_score":   rebuy_score,
-    "avg_wick_pct":  round(avg_wick_pct, 2),
-    "sell_conds":    [sc1, sc2, sc3, sc4, sc5, sc6],
-    "rebuy_conds":   [rc1, rc2, rc3, rc4],
-}
-```
+    return {
+        "current_price": round(current_price, 2),
+        "open_price":    round(open_price, 2),
+        "daily_high":    round(daily_high, 2),
+        "pct_from_open": round(pct_from_open, 2),
+        "pct_from_high": round(pct_from_high, 2),
+        "rsi":           round(rsi, 1) if not pd.isna(rsi) else None,
+        "vwap":          round(vwap, 2),
+        "vwap_gap_pct":  round(vwap_gap_pct, 2),
+        "vol_ratio":     round(vol_ratio, 2),
+        "vol_label":     vol_label,
+        "sell_score":    sell_score,
+        "rebuy_score":   rebuy_score,
+        "avg_wick_pct":  round(avg_wick_pct, 2),
+        "sell_conds":    [sc1, sc2, sc3, sc4, sc5, sc6],
+        "rebuy_conds":   [rc1, rc2, rc3, rc4],
+    }
+
 
 def generate_html(s: dict, generated_at: str) -> str:
-shares   = SHARES_HELD
-op       = s[“open_price”]
-price    = s[“current_price”]
-high     = s[“daily_high”]
-vwap     = s[“vwap”]
-rsi      = s[“rsi”]
-vol      = s[“vol_label”]
-pct      = s[“pct_from_open”]
-pct_h    = s[“pct_from_high”]
-vwap_gap = s[“vwap_gap_pct”]
-sc       = s[“sell_conds”]
-rc       = s[“rebuy_conds”]
+    shares   = SHARES_HELD
+    op       = s["open_price"]
+    price    = s["current_price"]
+    high     = s["daily_high"]
+    vwap     = s["vwap"]
+    rsi      = s["rsi"]
+    vol      = s["vol_label"]
+    pct      = s["pct_from_open"]
+    pct_h    = s["pct_from_high"]
+    vwap_gap = s["vwap_gap_pct"]
+    sc       = s["sell_conds"]
+    rc       = s["rebuy_conds"]
 
-```
-vol_he = "נמוך" if vol == "low" else "גבוה" if vol == "high" else "רגיל"
+    vol_he = "נמוך" if vol == "low" else "גבוה" if vol == "high" else "רגיל"
 
-# SELL limit orders — based on open price, % of holding
-t3  = round(op * 1.03, 2)   # +3%  → sell 25-33%
-t45 = round(op * 1.045, 2)  # +4-5% → sell 50%+
-t6  = round(op * 1.06, 2)   # +6%  → sell 75%
-t7  = round(op * 1.07, 2)   # +7%+ → sell ~all
+    # SELL limit orders — based on open price, % of holding
+    t3  = round(op * 1.03, 2)   # +3%  → sell 25-33%
+    t45 = round(op * 1.045, 2)  # +4-5% → sell 50%+
+    t6  = round(op * 1.06, 2)   # +6%  → sell 75%
+    t7  = round(op * 1.07, 2)   # +7%+ → sell ~all
 
-# REBUY limit orders — based on DAILY HIGH
-rb_agg  = round(high * 0.98, 2)    # 2% מתחת לשיא — אגרסיבי
-rb_bal  = round(high * 0.975, 2)   # 2.5% מתחת לשיא — מאוזן
-rb_cons = round(high * 0.96, 2)    # 4% מתחת לשיא — שמרני
-rb_next = round(price * 0.985, 2)  # 1.5% מתחת לסגירה — יום המחרת
+    # REBUY limit orders — based on DAILY HIGH
+    rb_agg  = round(high * 0.98, 2)    # 2% מתחת לשיא — אגרסיבי
+    rb_bal  = round(high * 0.975, 2)   # 2.5% מתחת לשיא — מאוזן
+    rb_cons = round(high * 0.96, 2)    # 4% מתחת לשיא — שמרני
+    rb_next = round(price * 0.985, 2)  # 1.5% מתחת לסגירה — יום המחרת
 
-js_data = json.dumps({
-    "pct_from_open": pct,
-    "pct_from_high": pct_h,
-    "rsi":           rsi,
-    "vwap_gap_pct":  vwap_gap,
-    "vol_ratio":     s["vol_ratio"],
-    "current_price": price,
-    "open_price":    op,
-    "daily_high":    high,
-    "vwap":          vwap,
-    "vol_label":     vol,
-    "avg_wick_pct":    round(avg_wick_pct, 2),
-    "sell_conds_base": [bool(sc[0]), bool(sc[1]), bool(sc[2]), bool(sc[3]), bool(sc[4])],
-    "rebuy_conds":   [bool(rc[0]), bool(rc[1]), bool(rc[2]), bool(rc[3])],
-    "t3": t3, "t45": t45, "t6": t6, "t7": t7,
-    "rb_agg": rb_agg, "rb_bal": rb_bal, "rb_cons": rb_cons, "rb_next": rb_next,
-    "shares": shares,
-})
+    js_data = json.dumps({
+        "pct_from_open": pct,
+        "pct_from_high": pct_h,
+        "rsi":           rsi,
+        "vwap_gap_pct":  vwap_gap,
+        "vol_ratio":     s["vol_ratio"],
+        "current_price": price,
+        "open_price":    op,
+        "daily_high":    high,
+        "vwap":          vwap,
+        "vol_label":     vol,
+        "avg_wick_pct":    round(avg_wick_pct, 2),
+        "sell_conds_base": [bool(sc[0]), bool(sc[1]), bool(sc[2]), bool(sc[3]), bool(sc[4])],
+        "rebuy_conds":   [bool(rc[0]), bool(rc[1]), bool(rc[2]), bool(rc[3])],
+        "t3": t3, "t45": t45, "t6": t6, "t7": t7,
+        "rb_agg": rb_agg, "rb_bal": rb_bal, "rb_cons": rb_cons, "rb_next": rb_next,
+        "shares": shares,
+    })
 
-return f"""<!DOCTYPE html>
-```
-
+    return f"""<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
@@ -330,7 +330,6 @@ window.onload = render;
 </script>
 
 <!-- HEADER -->
-
 <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-bottom:3px solid #e0e0e0;padding:20px 20px 16px;display:flex;justify-content:space-between;align-items:flex-start">
   <div>
     <div style="font-size:10px;color:#aaa;letter-spacing:.2em;font-family:monospace;margin-bottom:6px">TSLA · NASDAQ · v3</div>
@@ -346,7 +345,6 @@ window.onload = render;
 <div style="padding:16px 16px 0">
 
   <!-- EARNINGS TOGGLE + TIMESTAMP -->
-
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
     <button id="earnings-btn" onclick="toggleEarnings()"
       style="flex:1;padding:12px;border-radius:12px;border:2px solid;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s">
@@ -358,7 +356,6 @@ window.onload = render;
   </div>
 
   <!-- MARKET DATA -->
-
   <div class="card">
     <div style="font-size:11px;color:#888;margin-bottom:12px;font-weight:600;letter-spacing:.1em">📊 נתוני שוק</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -394,7 +391,6 @@ window.onload = render;
   </div>
 
   <!-- SELL SECTION -->
-
   <div class="section-title">🔴 מכירה</div>
   <div id="sell-wrap" class="section-card">
     <div id="sell-header" style="padding:18px 18px 14px;border-bottom:1px solid #f0f0f0">
@@ -414,7 +410,6 @@ window.onload = render;
   </div>
 
   <!-- REBUY SECTION -->
-
   <div class="section-title">🟢 קנייה חוזרת</div>
   <div id="rebuy-wrap" class="section-card">
     <div id="rebuy-header" style="padding:18px 18px 14px;border-bottom:1px solid #f0f0f0">
@@ -437,30 +432,31 @@ window.onload = render;
 </body>
 </html>"""
 
-def main():
-cfg = load_config()
-now_il       = datetime.now(pytz.timezone(“Asia/Jerusalem”))
-generated_at = now_il.strftime(”%d/%m %H:%M”)
-print(f”\nTSLA Alert v3 — {generated_at}\n”)
-try:
-print(“Fetching TSLA data…”)
-df      = fetch_intraday()
-signals = evaluate_signals(df, cfg)
-print(f”  Price:      ${signals[‘current_price’]:.2f}”)
-print(f”  Open:       ${signals[‘open_price’]:.2f}”)
-print(f”  Daily High: ${signals[‘daily_high’]:.2f}”)
-print(f”  Change:     {signals[‘pct_from_open’]:+.2f}%”)
-print(f”  RSI:        {signals[‘rsi’]}”)
-print(f”  VWAP:       ${signals[‘vwap’]:.2f}”)
-print(f”  Avg Wick:   {signals[‘avg_wick_pct’]:.2f}%”)
-print(f”  SELL:       {signals[‘sell_score’]}/100”)
-print(f”  REBUY:      {signals[‘rebuy_score’]}/100\n”)
-html = generate_html(signals, generated_at)
-OUTPUT_FILE.write_text(html, encoding=“utf-8”)
-print(f”Saved: {OUTPUT_FILE}”)
-except Exception:
-traceback.print_exc()
-sys.exit(1)
 
-if **name** == “**main**”:
-main()
+def main():
+    cfg = load_config()
+    now_il       = datetime.now(pytz.timezone("Asia/Jerusalem"))
+    generated_at = now_il.strftime("%d/%m %H:%M")
+    print(f"\nTSLA Alert v3 — {generated_at}\n")
+    try:
+        print("Fetching TSLA data...")
+        df      = fetch_intraday()
+        signals = evaluate_signals(df, cfg)
+        print(f"  Price:      ${signals['current_price']:.2f}")
+        print(f"  Open:       ${signals['open_price']:.2f}")
+        print(f"  Daily High: ${signals['daily_high']:.2f}")
+        print(f"  Change:     {signals['pct_from_open']:+.2f}%")
+        print(f"  RSI:        {signals['rsi']}")
+        print(f"  VWAP:       ${signals['vwap']:.2f}")
+        print(f"  Avg Wick:   {signals['avg_wick_pct']:.2f}%")
+        print(f"  SELL:       {signals['sell_score']}/100")
+        print(f"  REBUY:      {signals['rebuy_score']}/100\n")
+        html = generate_html(signals, generated_at)
+        OUTPUT_FILE.write_text(html, encoding="utf-8")
+        print(f"Saved: {OUTPUT_FILE}")
+    except Exception:
+        traceback.print_exc()
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
