@@ -22,7 +22,7 @@ body{background:#f0f2f5;font-family:system-ui,-apple-system,sans-serif;color:#11
 <body>
 
 <script>
-const RAW = {"pct_from_open": -1.31, "pct_from_high": -2.12, "rsi": 0, "vwap_gap_pct": -0.76, "vol_ratio": 0.53, "current_price": 359.92, "open_price": 364.68, "daily_high": 367.7, "vwap": 362.67, "vol_label": "normal", "sell_conds_base": [false, false, false, true], "rebuy_conds": [false, false, true, false], "t3": 375.62, "t45": 381.09, "t6": 386.56, "t7": 390.21, "rb_agg": 360.35, "rb_bal": 358.51, "rb_cons": 352.99, "rb_next": 354.52, "shares": 460};
+const RAW = {"pct_from_open": -2.7, "pct_from_high": -3.5, "rsi": 15.2, "vwap_gap_pct": -1.66, "vol_ratio": 0.56, "current_price": 354.84, "open_price": 364.68, "daily_high": 367.7, "vwap": 360.82, "vol_label": "normal", "avg_wick_pct": 0.1, "sell_conds_base": [false, false, false, true, true], "rebuy_conds": [true, false, true, false], "t3": 375.62, "t45": 381.09, "t6": 386.56, "t7": 390.21, "rb_agg": 360.35, "rb_bal": 358.51, "rb_cons": 352.99, "rb_next": 349.52, "shares": 460};
 let earningsWeek = false;
 
 function sellColor(s){return s>=80?"#dc2626":s>=60?"#d97706":s>=40?"#ea580c":"#6b7280"}
@@ -32,7 +32,7 @@ function calcScores(ew){
   const sc = [...RAW.sell_conds_base, !ew];
   const rc = RAW.rebuy_conds;
   return {
-    sellScore:  Math.round(sc.filter(Boolean).length / 5 * 100),
+    sellScore:  Math.round(sc.filter(Boolean).length / 6 * 100),
     rebuyScore: Math.round(rc.filter(Boolean).length / 4 * 100),
     sc, rc
   };
@@ -106,10 +106,11 @@ function render(){
   document.getElementById("sell-bar").style.background = sellColor(sellScore);
   document.getElementById("sell-conds").innerHTML =
     condRow("עלייה מהפתיחה", (pct>0?"+":"")+pct+"%", sc[0], "נדרש ≥3% | פתיחה $"+d.open_price) +
-    condRow("RSI (גרף 5 דקות)", String(d.rsi), sc[1], "נדרש >65 | overbought") +
+    condRow("RSI (גרף 5 דקות)", d.rsi !== null ? String(d.rsi) : "N/A", sc[1], "נדרש >65 | overbought") +
     condRow("מחיר מעל VWAP", (vg>0?"+":"")+vg+"%", sc[2], "נדרש ≥2% | VWAP $"+d.vwap) +
     condRow("נפח מסחר", volHe, sc[3], d.vol_label==="low"?"נפח נמוך = חולשה":"נפח תומך בתנועה") +
-    condRow("ללא דוחות", earningsWeek?"⚠️ שבוע דוחות":"✓ בטוח", sc[4], earningsWeek?"הימנע ממכירה":"אין אירוע קרוב");
+    condRow("ללא דוחות", earningsWeek?"⚠️ שבוע דוחות":"✓ בטוח", sc[4], earningsWeek?"הימנע ממכירה":"אין אירוע קרוב") +
+    condRow("זנבות עליונים (Upper Wicks)", (d.avg_wick_pct||0).toFixed(2)+"%", sc[5], "ממוצע 3 נרות אחרונים ≥0.5% = לחץ מכירה");
 
   // SELL orders
   document.getElementById("sell-orders").innerHTML =
@@ -129,7 +130,7 @@ function render(){
   document.getElementById("rebuy-bar").style.width = Math.min(rebuyScore,100)+"%";
   document.getElementById("rebuy-bar").style.background = rebuyColor(rebuyScore);
   document.getElementById("rebuy-conds").innerHTML =
-    condRow("RSI ירד מתחת ל-55", String(d.rsi), rc[0], rc[0]?"התקרר — אות כניסה טוב":"עדיין חם — המתן") +
+    condRow("RSI ירד מתחת ל-55", d.rsi !== null ? String(d.rsi) : "N/A", rc[0], rc[0]?"התקרר — אות כניסה טוב":"עדיין חם — המתן") +
     condRow("מחיר קרוב ל-VWAP", (vg>0?"+":"")+vg+"%", rc[1], "נדרש ≤0.5% מעל VWAP") +
     condRow("נפח לא מואץ", rc[2]?"✓":"גבוה ⚠️", rc[2], "נפח גבוה = מומנטום ממשיך — הימנע") +
     condRow("יום עדיין חיובי", (pct>0?"+":"")+pct+"%", rc[3], "מחיר מעל פתיחה $"+d.open_price);
@@ -175,7 +176,7 @@ window.onload = render;
     </button>
     <div style="background:#f0f4ff;border:1px solid #c7d7fe;border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;min-width:90px">
       <div style="font-size:9px;color:#6366f1;letter-spacing:.1em;margin-bottom:2px;font-weight:700">עודכן</div>
-      <div style="font-size:13px;font-weight:800;color:#4338ca;font-family:monospace">06/04 17:34</div>
+      <div style="font-size:13px;font-weight:800;color:#4338ca;font-family:monospace">06/04 18:14</div>
     </div>
   </div>
 
@@ -185,7 +186,7 @@ window.onload = render;
     <div style="display:flex;gap:6px;flex-wrap:wrap">
       <div class="metric" style="background:#eff6ff;border-color:#bfdbfe">
         <div class="metric-label">מחיר נוכחי</div>
-        <div class="metric-value" style="color:#1d4ed8">$359.92</div>
+        <div class="metric-value" style="color:#1d4ed8">$354.84</div>
       </div>
       <div class="metric">
         <div class="metric-label">פתיחה</div>
@@ -193,7 +194,7 @@ window.onload = render;
       </div>
       <div class="metric" style="background:#fef2f2;border-color:#fca5a5">
         <div class="metric-label">מהפתיחה</div>
-        <div class="metric-value" style="color:#dc2626">-1.31%</div>
+        <div class="metric-value" style="color:#dc2626">-2.70%</div>
       </div>
       <div class="metric" style="background:#faf5ff;border-color:#d8b4fe">
         <div class="metric-label">שיא יומי</div>
@@ -201,11 +202,11 @@ window.onload = render;
       </div>
       <div class="metric">
         <div class="metric-label">VWAP</div>
-        <div class="metric-value">$362.67</div>
+        <div class="metric-value">$360.82</div>
       </div>
       <div class="metric" style="background:#f8f9fa;border-color:#e0e0e0">
         <div class="metric-label">RSI</div>
-        <div class="metric-value" style="color:#111">0</div>
+        <div class="metric-value" style="color:#111">15.2</div>
       </div>
       <div class="metric">
         <div class="metric-label">נפח</div>
