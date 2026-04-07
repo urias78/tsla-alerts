@@ -49,10 +49,17 @@ def fetch_intraday() -> pd.DataFrame:
 
 def calc_rsi(closes: pd.Series, period: int = RSI_PERIOD) -> float:
     closes = closes.dropna()
-    if len(closes) < period + 1:
-        print(f"  [RSI] Not enough bars: {len(closes)} < {period + 1}")
+    if len(closes) < 5:
+        print(f"  [RSI] Too early: only {len(closes)} bars — returning Wait")
         return float("nan")
-    print(f"  [RSI] Computing on {len(closes)} bars")
+    if len(closes) <= 6:
+        print(f"  [RSI] Early session ({len(closes)} bars) — returning WAIT")
+        return float("wait")   # special sentinel
+    if len(closes) < period + 1:
+        period = len(closes) - 1
+        print(f"  [RSI] Partial session: {len(closes)} bars, using period={period}")
+    else:
+        print(f"  [RSI] Computing on {len(closes)} bars with period={period}")
     delta    = closes.diff()
     gain     = delta.clip(lower=0)
     loss     = (-delta).clip(lower=0)
@@ -94,14 +101,14 @@ def evaluate_signals(df: pd.DataFrame, cfg: dict) -> dict:
 
     # Sell conditions
     sc1 = pct_from_open >= 3.0
-    sc2 = (not pd.isna(rsi)) and rsi > 65
+    sc2 = isinstance(rsi, float) and not pd.isna(rsi) and rsi != float("wait") and rsi > 65
     sc3 = vwap_gap_pct >= 2.0
     sc4 = vol_ratio >= 0.5
     sc5 = True  # earnings_week handled in HTML
     sell_score = int(sum([sc1, sc2, sc3, sc4, sc5, sc6]) / 6 * 100)
 
     # Rebuy conditions — based on distance from daily high
-    rc1 = (not pd.isna(rsi)) and rsi < 55
+    rc1 = isinstance(rsi, float) and not pd.isna(rsi) and rsi != float("wait") and rsi < 55
     rc2 = abs(vwap_gap_pct) <= 0.5
     rc3 = vol_ratio < 1.5
     rc4 = current_price > open_price
@@ -113,7 +120,7 @@ def evaluate_signals(df: pd.DataFrame, cfg: dict) -> dict:
         "daily_high":    round(daily_high, 2),
         "pct_from_open": round(pct_from_open, 2),
         "pct_from_high": round(pct_from_high, 2),
-        "rsi":           round(rsi, 1) if not pd.isna(rsi) else None,
+        "rsi":           "Wait" if rsi == float("wait") else (round(rsi, 1) if not pd.isna(rsi) else None),
         "vwap":          round(vwap, 2),
         "vwap_gap_pct":  round(vwap_gap_pct, 2),
         "vol_ratio":     round(vol_ratio, 2),
@@ -282,7 +289,7 @@ function render(){{
   document.getElementById("sell-bar").style.background = sellColor(sellScore);
   document.getElementById("sell-conds").innerHTML =
     condRow("עלייה מהפתיחה", (pct>0?"+":"")+pct+"%", sc[0], "נדרש ≥3% | פתיחה $"+d.open_price) +
-    condRow("RSI (גרף 5 דקות)", d.rsi !== null ? String(d.rsi) : "N/A", sc[1], "נדרש >65 | overbought") +
+    condRow("RSI (גרף 5 דקות)", d.rsi !== null ? String(d.rsi) : "Wait", sc[1], "נדרש >65 | overbought") +
     condRow("מחיר מעל VWAP", (vg>0?"+":"")+vg+"%", sc[2], "נדרש ≥2% | VWAP $"+d.vwap) +
     condRow("נפח מסחר", volHe, sc[3], d.vol_label==="low"?"נפח נמוך = חולשה":"נפח תומך בתנועה") +
     condRow("ללא דוחות", earningsWeek?"⚠️ שבוע דוחות":"✓ בטוח", sc[4], earningsWeek?"הימנע ממכירה":"אין אירוע קרוב") +
@@ -306,7 +313,7 @@ function render(){{
   document.getElementById("rebuy-bar").style.width = Math.min(rebuyScore,100)+"%";
   document.getElementById("rebuy-bar").style.background = rebuyColor(rebuyScore);
   document.getElementById("rebuy-conds").innerHTML =
-    condRow("RSI ירד מתחת ל-55", d.rsi !== null ? String(d.rsi) : "N/A", rc[0], rc[0]?"התקרר — אות כניסה טוב":"עדיין חם — המתן") +
+    condRow("RSI ירד מתחת ל-55", d.rsi !== null ? String(d.rsi) : "Wait", rc[0], rc[0]?"התקרר — אות כניסה טוב":"עדיין חם — המתן") +
     condRow("מחיר קרוב ל-VWAP", (vg>0?"+":"")+vg+"%", rc[1], "נדרש ≤0.5% מעל VWAP") +
     condRow("נפח לא מואץ", rc[2]?"✓":"גבוה ⚠️", rc[2], "נפח גבוה = מומנטום ממשיך — הימנע") +
     condRow("יום עדיין חיובי", (pct>0?"+":"")+pct+"%", rc[3], "מחיר מעל פתיחה $"+d.open_price);
@@ -380,7 +387,7 @@ window.onload = render;
         <div class="metric-label">VWAP</div>
         <div class="metric-value">${vwap:.2f}</div>
       </div>
-      <div class="metric" style="background:{'#fffbeb' if rsi>=65 else '#f8f9fa'};border-color:{'#fcd34d' if rsi>=65 else '#e0e0e0'}">
+      <div class="metric" style="background:{'#fffbeb' if (rsi or 0)>=65 else '#f8f9fa'};border-color:{'#fcd34d' if (rsi or 0)>=65 else '#e0e0e0'}">
         <div class="metric-label">RSI</div>
         <div class="metric-value" style="color:{'#d97706' if rsi>=65 else '#111'}">{rsi}</div>
       </div>
