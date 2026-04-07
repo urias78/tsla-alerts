@@ -22,7 +22,7 @@ body{background:#f0f2f5;font-family:system-ui,-apple-system,sans-serif;color:#11
 <body>
 
 <script>
-const RAW = {"pct_from_open": -2.51, "pct_from_high": -2.68, "rsi": 22.9, "vwap_gap_pct": -1.25, "vol_ratio": 0.0, "current_price": 338.68, "open_price": 347.42, "daily_high": 348.02, "vwap": 342.98, "vol_label": "low", "avg_wick_pct": 0.05, "sell_conds_base": [false, false, false, false, true], "rebuy_conds": [true, false, true, false], "t3": 357.84, "t45": 363.05, "t6": 368.27, "t7": 371.74, "rb_agg": 341.06, "rb_bal": 339.32, "rb_cons": 334.1, "rb_next": 333.6, "shares": 460};
+const RAW = {"pct_from_open": -2.47, "pct_from_high": -2.64, "rsi": 23.7, "vwap_gap_pct": -1.21, "vol_ratio": 0.0, "current_price": 338.85, "open_price": 347.42, "daily_high": 348.02, "vwap": 342.98, "vol_label": "low", "avg_wick_pct": 0.05, "sell_conds_base": [false, false, false, false, true], "rebuy_conds": [true, false, true, false], "t3": 357.84, "t45": 363.05, "t6": 368.27, "t7": 371.74, "rb_agg": 341.06, "rb_bal": 339.32, "rb_cons": 334.1, "rb_next": 333.77, "shares": 460};
 let earningsWeek = false;
 
 function sellColor(s){return s>=80?"#dc2626":s>=60?"#d97706":s>=40?"#ea580c":"#6b7280"}
@@ -186,7 +186,7 @@ window.onload = render;
     <div style="display:flex;gap:6px;flex-wrap:wrap">
       <div class="metric" style="background:#eff6ff;border-color:#bfdbfe">
         <div class="metric-label">מחיר נוכחי</div>
-        <div class="metric-value" style="color:#1d4ed8">$338.68</div>
+        <div class="metric-value" style="color:#1d4ed8">$338.85</div>
       </div>
       <div class="metric">
         <div class="metric-label">פתיחה</div>
@@ -194,7 +194,7 @@ window.onload = render;
       </div>
       <div class="metric" style="background:#fef2f2;border-color:#fca5a5">
         <div class="metric-label">מהפתיחה</div>
-        <div class="metric-value" style="color:#dc2626">-2.51%</div>
+        <div class="metric-value" style="color:#dc2626">-2.47%</div>
       </div>
       <div class="metric" style="background:#faf5ff;border-color:#d8b4fe">
         <div class="metric-label">שיא יומי</div>
@@ -206,7 +206,7 @@ window.onload = render;
       </div>
       <div class="metric" style="background:#f8f9fa;border-color:#e0e0e0">
         <div class="metric-label">RSI</div>
-        <div class="metric-value" style="color:#111">22.9</div>
+        <div class="metric-value" style="color:#111">23.7</div>
       </div>
       <div class="metric">
         <div class="metric-label">נפח</div>
