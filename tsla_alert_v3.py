@@ -47,19 +47,21 @@ def fetch_intraday() -> pd.DataFrame:
     return df
 
 
-def calc_rsi(closes: pd.Series, period: int = RSI_PERIOD) -> float:
+def calc_rsi(closes: pd.Series, period: int = RSI_PERIOD) -> float | None:
+    """Returns float RSI, None if too early (<5 bars), or -1 as sentinel for Wait (5-6 bars)."""
     closes = closes.dropna()
-    if len(closes) < 5:
-        print(f"  [RSI] Too early: only {len(closes)} bars — returning Wait")
-        return float("nan")
-    if len(closes) <= 6:
-        print(f"  [RSI] Early session ({len(closes)} bars) — returning WAIT")
-        return float("wait")   # special sentinel
-    if len(closes) < period + 1:
-        period = len(closes) - 1
-        print(f"  [RSI] Partial session: {len(closes)} bars, using period={period}")
+    n = len(closes)
+    if n < 5:
+        print(f"  [RSI] Too early: only {n} bars — Wait")
+        return None
+    if n <= 6:
+        print(f"  [RSI] Early session ({n} bars) — Wait")
+        return -1  # sentinel for "Wait"
+    if n < period + 1:
+        period = n - 1
+        print(f"  [RSI] Partial session: {n} bars, using period={period}")
     else:
-        print(f"  [RSI] Computing on {len(closes)} bars with period={period}")
+        print(f"  [RSI] Computing on {n} bars with period={period}")
     delta    = closes.diff()
     gain     = delta.clip(lower=0)
     loss     = (-delta).clip(lower=0)
@@ -101,14 +103,14 @@ def evaluate_signals(df: pd.DataFrame, cfg: dict) -> dict:
 
     # Sell conditions
     sc1 = pct_from_open >= 3.0
-    sc2 = isinstance(rsi, float) and not pd.isna(rsi) and rsi != float("wait") and rsi > 65
+    sc2 = isinstance(rsi, float) and rsi > 0 and rsi > 65
     sc3 = vwap_gap_pct >= 2.0
     sc4 = vol_ratio >= 0.5
     sc5 = True  # earnings_week handled in HTML
     sell_score = int(sum([sc1, sc2, sc3, sc4, sc5, sc6]) / 6 * 100)
 
     # Rebuy conditions — based on distance from daily high
-    rc1 = isinstance(rsi, float) and not pd.isna(rsi) and rsi != float("wait") and rsi < 55
+    rc1 = isinstance(rsi, float) and rsi > 0 and rsi < 55
     rc2 = abs(vwap_gap_pct) <= 0.5
     rc3 = vol_ratio < 1.5
     rc4 = current_price > open_price
@@ -120,7 +122,7 @@ def evaluate_signals(df: pd.DataFrame, cfg: dict) -> dict:
         "daily_high":    round(daily_high, 2),
         "pct_from_open": round(pct_from_open, 2),
         "pct_from_high": round(pct_from_high, 2),
-        "rsi":           "Wait" if rsi == float("wait") else (round(rsi, 1) if not pd.isna(rsi) else None),
+        "rsi":           "Wait" if rsi is None or rsi == -1 else round(rsi, 1),
         "vwap":          round(vwap, 2),
         "vwap_gap_pct":  round(vwap_gap_pct, 2),
         "vol_ratio":     round(vol_ratio, 2),
