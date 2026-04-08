@@ -389,7 +389,7 @@ window.onload = render;
         <div class="metric-label">VWAP</div>
         <div class="metric-value">${vwap:.2f}</div>
       </div>
-      <div class="metric" style="background:{'#fffbeb' if (rsi or 0)>=65 else '#f8f9fa'};border-color:{'#fcd34d' if (rsi or 0)>=65 else '#e0e0e0'}">
+      <div class="metric" style="background:{'#fffbeb' if isinstance(rsi, float) and rsi>=65 else '#f8f9fa'};border-color:{'#fcd34d' if isinstance(rsi, float) and rsi>=65 else '#e0e0e0'}">
         <div class="metric-label">RSI</div>
         <div class="metric-value" style="color:{'#d97706' if rsi>=65 else '#111'}">{rsi}</div>
       </div>
