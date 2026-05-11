@@ -22,7 +22,7 @@ body{background:#f0f2f5;font-family:system-ui,-apple-system,sans-serif;color:#11
 <body>
 
 <script>
-const RAW = {"pct_from_open": 3.05, "pct_from_high": -0.13, "rsi": 64.2, "vwap_gap_pct": 0.45, "vol_ratio": 0.01, "current_price": 430.15, "open_price": 417.43, "daily_high": 430.7, "vwap": 428.2, "vol_label": "low", "avg_wick_pct": 0.07, "sell_conds_base": [true, false, false, false, true], "rebuy_conds": [false, true, true, true], "t3": 429.95, "t45": 436.21, "t6": 442.48, "t7": 446.65, "rb_agg": 422.09, "rb_bal": 419.93, "rb_cons": 413.47, "rb_next": 423.7, "shares": 460};
+const RAW = {"pct_from_open": 3.61, "pct_from_high": -0.96, "rsi": 71.6, "vwap_gap_pct": 2.31, "vol_ratio": 0.51, "current_price": 437.41, "open_price": 422.16, "daily_high": 441.65, "vwap": 427.54, "vol_label": "normal", "avg_wick_pct": 0.12, "sell_conds_base": [true, true, true, true, true], "rebuy_conds": [false, false, true, true], "t3": 434.82, "t45": 441.16, "t6": 447.49, "t7": 451.71, "rb_agg": 432.82, "rb_bal": 430.61, "rb_cons": 423.98, "rb_next": 430.85, "shares": 460};
 let earningsWeek = false;
 
 function sellColor(s){return s>=80?"#dc2626":s>=60?"#d97706":s>=40?"#ea580c":"#6b7280"}
@@ -176,7 +176,7 @@ window.onload = render;
     </button>
     <div style="background:#f0f4ff;border:1px solid #c7d7fe;border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;min-width:90px">
       <div style="font-size:9px;color:#6366f1;letter-spacing:.1em;margin-bottom:2px;font-weight:700">עודכן</div>
-      <div style="font-size:13px;font-weight:800;color:#4338ca;font-family:monospace">08/05 18:46</div>
+      <div style="font-size:13px;font-weight:800;color:#4338ca;font-family:monospace">11/05 19:04</div>
     </div>
   </div>
 
@@ -186,31 +186,31 @@ window.onload = render;
     <div style="display:flex;gap:6px;flex-wrap:wrap">
       <div class="metric" style="background:#eff6ff;border-color:#bfdbfe">
         <div class="metric-label">מחיר נוכחי</div>
-        <div class="metric-value" style="color:#1d4ed8">$430.15</div>
+        <div class="metric-value" style="color:#1d4ed8">$437.41</div>
       </div>
       <div class="metric">
         <div class="metric-label">פתיחה</div>
-        <div class="metric-value">$417.43</div>
+        <div class="metric-value">$422.16</div>
       </div>
       <div class="metric" style="background:#f0fdf4;border-color:#86efac">
         <div class="metric-label">מהפתיחה</div>
-        <div class="metric-value" style="color:#16a34a">+3.05%</div>
+        <div class="metric-value" style="color:#16a34a">+3.61%</div>
       </div>
       <div class="metric" style="background:#faf5ff;border-color:#d8b4fe">
         <div class="metric-label">שיא יומי</div>
-        <div class="metric-value" style="color:#7c3aed">$430.70</div>
+        <div class="metric-value" style="color:#7c3aed">$441.65</div>
       </div>
       <div class="metric">
         <div class="metric-label">VWAP</div>
-        <div class="metric-value">$428.20</div>
+        <div class="metric-value">$427.54</div>
       </div>
-      <div class="metric" style="background:#f8f9fa;border-color:#e0e0e0">
+      <div class="metric" style="background:#fffbeb;border-color:#fcd34d">
         <div class="metric-label">RSI</div>
-        <div class="metric-value" style="color:#111">64.2</div>
+        <div class="metric-value" style="color:#d97706">71.6</div>
       </div>
       <div class="metric">
         <div class="metric-label">נפח</div>
-        <div class="metric-value">נמוך</div>
+        <div class="metric-value">רגיל</div>
       </div>
     </div>
   </div>
